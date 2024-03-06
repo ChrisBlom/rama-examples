@@ -2,7 +2,7 @@ package rama.examples.stocklevel.data
 
 import com.rpl.rama.RamaSerializable
 
-data class StockLevelRecord(
+class StockLevelRecord(
     @JvmField
     var productId: String,
     @JvmField

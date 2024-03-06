@@ -1,5 +1,6 @@
 package rama.examples.stocklevel
 
+import com.rpl.rama.AckLevel
 import com.rpl.rama.Depot
 import com.rpl.rama.PState
 import com.rpl.rama.Path
@@ -29,27 +30,27 @@ class RamaStockLevelClient(cluster: ClusterManagerBase) {
     }
 
     fun appendStockLevelRecord(productId: String, quantity: Int) {
-        _stockLevelDepot.append(StockLevelRecord(productId, quantity))
+        var x = _stockLevelDepot.append(StockLevelRecord(productId, quantity), AckLevel.ACK)
+        println("Acked: " + x)
+
     }
 
-    fun appendStockReservation(orderId: String, lines: Map<String, Int>) {
-        _reservationDepot.append(CreateStockReservation(orderId, lines.entries.map { (key, value) ->
-            StockReservationLine(
-                productId = key, quantity = value
-            )
-        }))
-    }
+    fun tryReserve(orderId: String, lines: Map<String, Int>, requestId: Int): Any? {
+        var x = _reservationDepot.append(
+            CreateStockReservation(
+                reservationId = orderId,
+                lines = lines.entries.map { (key, value) ->
+                    StockReservationLine(
+                        productId = key,
+                        quantity = value
+                    )
+                },
+                requestId = requestId
+            ), AckLevel.ACK
+        )
+        println("Acked" + x)
+        return x.get("stocklevel")
 
-    fun tryReserve(orderId: String, lines: Map<String, Int>): Boolean {
-        val linesWithInsufficientStock = lines.filter { (productId, requested) ->
-            requested > stockLevel(productId)
-        }
-        return if (linesWithInsufficientStock.any()) {
-            false
-        } else {
-            appendStockReservation(orderId, lines)
-            true
-        }
     }
 
     private fun stockLevel(productId: String): Int = _stockLevelState.selectOne<Any>(
