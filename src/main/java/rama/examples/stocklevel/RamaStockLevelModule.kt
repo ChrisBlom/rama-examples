@@ -32,7 +32,7 @@ class RamaStockLevelModule : RamaModule {
                 String::class.java,  // indexed by productId
                 PState.fixedKeysSchema(
                     "productId", String::class.java,
-                    "stockLevel", Int::class.java
+                    "stockLevel", Integer::class.java
                 )
             )
         )
@@ -46,7 +46,7 @@ class RamaStockLevelModule : RamaModule {
                 String::class.java,  // indexed reservationId
                 PState.fixedKeysSchema(
                     "reservationId", String::class.java,
-                    "lines", PState.mapSchema(String::class.java, Int::class.java)
+                    "lines", PState.mapSchema(String::class.java, Integer::class.java)
                 )
             )
         )

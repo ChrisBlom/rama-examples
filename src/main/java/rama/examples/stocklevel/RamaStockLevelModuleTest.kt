@@ -59,6 +59,7 @@ class RamaStockLevelModuleTest {
                     "cherry" to 3,
                 )
             ) shouldBe false
+            ipc.waitForMicrobatchProcessedCount(moduleName, topologyName, 4)
 
             // there are still 9 apples in stock, so this reservation can be processed:
             client.tryReserve(
@@ -74,6 +75,8 @@ class RamaStockLevelModuleTest {
             val publishedStockReservationEvents = EventQueue.eventsByTopic["stockReservation"].shouldNotBeNull()
 
             publishedStockReservationEvents.size shouldBe 2
+
+            client.getStockLevelRecord("apple").stockLevel shouldBe 0
 
             publishedStockReservationEvents.first() shouldBe CreateStockReservation(
                 "order1",
